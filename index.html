@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+      .red{
+        background-color: red
+      }
+      .green{
+        background-color: green;
+      }
+      
+    </style>
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <div class="containter">
+      <div class="row">
+        <div class="col-md-8 d-flex justify-content-center w-100">
+          <form>
+            <input type="hidden" id="id">
+
+            <label for="modelo">Modelo 
+              <input type="text" id="modelo">
+            </label>
+            <label for="marca">Marca  
+              <input type="text" id="marca">
+            </label>
+            <label for="ano">Ano  
+              <input type="text" id="ano">
+            </label>
+            <button onclick="create_or_update()" id="store">Inserir</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8 d-flex justify-content-center w-100">
+          <table class="table"> 
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Ano</th>
+                <th>excluir</th>
+              </tr>
+             </thead>
+             <tbody id = "dados_carros">
+
+             </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <script src="./carro.js"></script>
+    <script src="./carroRepository.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+      var carroRepository= new CarroRepository()
+      carroRepository.initStoreIfNotExists()
+
+      function create_or_update(){
+        let id = document.querySelector('#id').value
+        if(id===''){
+          addCarro()
+        }else{
+          updateCarro()
+        }
+      }
+      function updateCarro(){
+        let modelo = document.querySelector('#modelo').value
+        let marca = document.querySelector('#marca').value
+        let ano = document.querySelector('#ano').value
+        let id = document.querySelector('#id').value
+        // console.log(id)
+        let carro = carroRepository.update(id,{modelo,marca,ano})
+        // console.log(carro.marca)
+
+      }
+      function addCarro(){
+        let modelo = document.querySelector('#modelo').value
+        let marca = document.querySelector('#marca').value
+        let ano = document.querySelector('#ano').value
+        if(modelo && marca && ano){
+          carroRepository.create({modelo:modelo,marca:marca,ano:ano})
+
+        }else{
+          console.log('nao completo')
+        }
+      }
+      function excluirCarro(id){
+        carroRepository.delete(id)
+      }
+      function listarCarros(){
+        let carros= carroRepository.list()
+        carros.map(addRowToTable)
+      }
+      function addRowToTable(carroObj){
+        let tbody = document.querySelector('#dados_carros')
+
+        let tr= document.createElement('tr')
+        tr.addEventListener('click',()=>{
+          document.querySelector('#modelo').value = carroObj.modelo
+          document.querySelector('#marca').value = carroObj.marca
+          document.querySelector('#ano').value= carroObj.ano
+          document.querySelector('#id').value= carroObj.id
+          document.querySelector('#store').innerHTML= 'Atualizar'
+        })
+        tbody.appendChild(tr)
+        
+        addTdToRow(carroObj,tr)
+        
+      }
+      function addTdToRow(carroObj,tr){
+        //modelo
+        let td_modelo= document.createElement('td')
+        tr.appendChild(td_modelo)
+        let txt_modelo = document.createTextNode(carroObj.modelo)
+        td_modelo.appendChild(txt_modelo)
+
+        //marca
+        let td_marca= document.createElement('td')
+        tr.appendChild(td_marca)
+        let txt_marca = document.createTextNode(carroObj.marca)
+        td_marca.appendChild(txt_marca)
+        
+        //ano
+        let td_ano= document.createElement('td')
+        tr.appendChild(td_ano)
+        let txt_ano = document.createTextNode(carroObj.ano)
+        td_ano.appendChild(txt_ano)
+
+        //excluir
+        let td_excluir= document.createElement('td')
+        tr.appendChild(td_excluir)
+        let txt_excluir = document.createTextNode('X')
+        td_excluir.appendChild(txt_excluir)
+        td_excluir.addEventListener('click',()=>{
+          excluirCarro(carroObj.id)
+          document.querySelector('#dados_carros > tr').remove()
+        })
+      }
+      
+      listarCarros()
+    </script>
+  </body>
+</html>
+ 
